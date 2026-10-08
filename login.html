@@ -4,96 +4,103 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daftar / Login - Linkfoo</title>
-<!-- Library Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-  :root {
-    --bg-light: #8e8e8e;
-    --card-bg: #383838;
-    --text-white: #ffffff;
-    --input-bg: #808080;
-    --btn-bg: #1c1c1c;
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   
-  body.bg-light {
-    background-color: var(--bg-light);
+  body {
+    background: #8f9296; /* Warna latar belakang silver/abu halus */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 16px;
   }
 
   .stage {
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
   }
 
-  /* Desain Kapsul Oval Sesuai Desain Awal Kamu */
-  .pill.tall {
-    background-color: var(--card-bg);
-    color: var(--text-white);
-    padding: 60px 36px;
-    border-radius: 170px;
+  /* Kapsul Vertikal Ramping (Tidak Melebar/Bantet di Laptop) */
+  .pill-container {
+    background-color: #5c5d61; /* Abu-abu kapsul elegan */
+    color: #ffffff;
     width: 100%;
-    max-width: 380px;
-    min-height: 520px;
+    max-width: 350px;       /* Lebar dikunci proporsional HP */
+    min-height: 640px;      /* Menjaga tinggi agar tetap jenjang */
+    border-radius: 175px;   /* Radius oval melengkung penuh */
+    padding: 60px 32px 50px 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
     text-align: center;
   }
 
-  .pill h1 {
-    font-size: 21px;
-    font-weight: 700;
-    margin-bottom: 6px;
+  .head-box {
+    margin-top: 50px;
+    margin-bottom: 45px;
+  }
+
+  .head-box h1 {
+    font-size: 19px;
+    font-weight: 600;
     color: #ffffff;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
   }
 
   .sub {
     font-size: 13px;
-    color: #d1d5db;
-    margin-bottom: 28px;
+    color: #d8d8d8;
+  }
+
+  /* Input Fields */
+  .input-group {
+    width: 100%;
+    margin-bottom: 16px;
   }
 
   .field {
     width: 100%;
-    padding: 13px 20px;
-    border-radius: 25px;
+    height: 64px;
+    padding: 0 24px;
+    border-radius: 20px;
     border: none;
     outline: none;
-    margin-bottom: 14px;
-    font-size: 14px;
-    background-color: var(--input-bg);
-    color: #ffffff;
+    font-size: 15px;
+    background-color: #dedede;
+    color: #1e1e1e;
   }
 
   .field::placeholder {
-    color: #e5e7eb;
+    color: #4b4b4b;
   }
 
-  /* Kolom Password & Ikon Mata */
-  .pass-box {
+  /* Kolom Password + Ikon Mata */
+  .pass-wrapper {
     position: relative;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
-  .pass-box .field {
-    margin-bottom: 0;
-    padding-right: 48px;
+  .pass-wrapper .field {
+    padding-right: 52px;
   }
 
-  .toggle-eye {
+  .toggle-btn {
     position: absolute;
-    right: 14px;
+    right: 18px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -104,73 +111,88 @@
     user-select: none;
   }
 
-  .btn {
+  /* Tombol Aksi */
+  .btn-submit {
     width: 100%;
-    padding: 13px;
-    border-radius: 25px;
+    height: 64px;
+    border-radius: 32px;
     border: none;
-    background-color: var(--btn-bg);
+    background-color: #1d1e20;
     color: #ffffff;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: background 0.2s ease;
   }
 
-  .btn:hover {
-    background-color: #000000;
+  .btn-submit:hover {
+    background-color: #111112;
   }
 
-  .alt {
-    font-size: 12px;
-    color: #d1d5db;
-    margin-top: 18px;
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
-  .alt button {
+  .alt-links {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .alt-links button {
     background: none;
     border: none;
     color: #ffffff;
-    font-weight: 700;
-    text-decoration: underline;
+    font-size: 12px;
     cursor: pointer;
+    text-decoration: underline;
   }
 
-  .alt a {
+  .alt-links a {
     color: #d1d5db;
     text-decoration: none;
     font-size: 11px;
   }
 
-  .alt a:hover {
+  .alt-links a:hover {
     text-decoration: underline;
   }
 
   .footer {
     margin-top: 24px;
-    font-size: 11px;
+    font-size: 12px;
     color: #2b2b2b;
     text-align: center;
+    letter-spacing: 0.3px;
   }
 </style>
 </head>
-<body class="bg-light">
+<body>
 
 <main class="stage">
-  <form class="pill tall" id="form" novalidate>
-    <h1>Bergabunglah dengan Linkfoo</h1>
-    <p class="sub" id="sub">Daftar Secara Gratis</p>
+  <form class="pill-container" id="form" novalidate>
+    <div class="head-box">
+      <h1>Bergabunglah dengan Linkfoo</h1>
+      <p class="sub" id="sub">Daftar Secara Gratis</p>
+    </div>
     
-    <input class="field" type="email" id="email" placeholder="Email" autocomplete="email" required>
+    <div class="input-group">
+      <input class="field" type="email" id="email" placeholder="Email" autocomplete="email" required>
+    </div>
     
-    <div class="pass-box">
+    <div class="pass-wrapper">
       <input class="field" type="password" id="pass" placeholder="Password" autocomplete="current-password" required>
-      <button type="button" class="toggle-eye" id="togglePass" aria-label="Lihat Password">👁️</button>
+      <button type="button" class="toggle-btn" id="togglePass" aria-label="Lihat Password">👁️</button>
     </div>
 
-    <button class="btn" id="submit" type="submit">Daftar</button>
-    <p class="alt" id="alt"></p>
-    <p class="alt"><a href="index.html">&larr; Kembali ke halaman utama</a></p>
+    <button class="btn-submit" id="submit" type="submit">Daftar</button>
+    
+    <div class="alt-links">
+      <div id="alt"></div>
+      <a href="index.html">&larr; Kembali ke halaman utama</a>
+    </div>
   </form>
 </main>
 <div class="footer">Powered by IMFOO OFFICIAL</div>
@@ -184,7 +206,7 @@
   let mode = new URLSearchParams(location.search).get('mode') === 'login' ? 'login' : 'register';
   const $ = id => document.getElementById(id);
 
-  // Fitur intip password
+  // Toggle Visibility Password
   $('togglePass').addEventListener('click', () => {
     const isPass = $('pass').type === 'password';
     $('pass').type = isPass ? 'text' : 'password';
@@ -214,7 +236,7 @@
     const btn = $('submit');
     btn.disabled = true;
 
-    // Masuk (Login)
+    // Mode Masuk (Login)
     if (mode === 'login') {
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (error) {
@@ -226,13 +248,13 @@
       return;
     }
 
-    // Daftar (Sign Up)
+    // Mode Daftar (Register)
     const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
     if (error) {
       btn.disabled = false;
       return alert('Gagal mendaftar: ' + error.message);
     }
-    alert('Pendaftaran berhasil! Akun kamu sudah tersimpan di database online.');
+    alert('Pendaftaran berhasil! Akun tersimpan di cloud.');
     location.href = 'edit.html';
   });
 })();
