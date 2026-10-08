@@ -3,37 +3,159 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Daftar / Login - Linkfoo</title>
 <!-- Library Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<title>Daftar / Login - Linkfoo</title>
-<!-- Memakai kembali file style.css asli kamu -->
-<link rel="stylesheet" href="style.css">
+
 <style>
-  /* Tambahan khusus fitur intip password agar rapi di form asli */
+  :root {
+    --bg-light: #8e8e8e;
+    --card-bg: #383838;
+    --text-white: #ffffff;
+    --input-bg: #808080;
+    --btn-bg: #1c1c1c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  
+  body.bg-light {
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .stage {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Desain Kapsul Oval Sesuai Desain Awal Kamu */
+  .pill.tall {
+    background-color: var(--card-bg);
+    color: var(--text-white);
+    padding: 60px 36px;
+    border-radius: 170px;
+    width: 100%;
+    max-width: 380px;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+  }
+
+  .pill h1 {
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #ffffff;
+  }
+
+  .sub {
+    font-size: 13px;
+    color: #d1d5db;
+    margin-bottom: 28px;
+  }
+
+  .field {
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    margin-bottom: 14px;
+    font-size: 14px;
+    background-color: var(--input-bg);
+    color: #ffffff;
+  }
+
+  .field::placeholder {
+    color: #e5e7eb;
+  }
+
+  /* Kolom Password & Ikon Mata */
   .pass-box {
     position: relative;
     width: 100%;
-    display: flex;
-    align-items: center;
+    margin-bottom: 20px;
   }
-  .pass-box input {
-    width: 100%;
-    padding-right: 40px !important;
+
+  .pass-box .field {
+    margin-bottom: 0;
+    padding-right: 48px;
   }
+
   .toggle-eye {
     position: absolute;
     right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    padding: 0;
+    font-size: 18px;
     line-height: 1;
     user-select: none;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 25px;
+    border: none;
+    background-color: var(--btn-bg);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .btn:hover {
+    background-color: #000000;
+  }
+
+  .alt {
+    font-size: 12px;
+    color: #d1d5db;
+    margin-top: 18px;
+  }
+
+  .alt button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .alt a {
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 11px;
+  }
+
+  .alt a:hover {
+    text-decoration: underline;
+  }
+
+  .footer {
+    margin-top: 24px;
+    font-size: 11px;
+    color: #2b2b2b;
+    text-align: center;
   }
 </style>
 </head>
 <body class="bg-light">
+
 <main class="stage">
   <form class="pill tall" id="form" novalidate>
     <h1>Bergabunglah dengan Linkfoo</h1>
@@ -92,6 +214,7 @@
     const btn = $('submit');
     btn.disabled = true;
 
+    // Masuk (Login)
     if (mode === 'login') {
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (error) {
@@ -103,6 +226,7 @@
       return;
     }
 
+    // Daftar (Sign Up)
     const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
     if (error) {
       btn.disabled = false;
