@@ -3,6 +3,12 @@ const LF = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+  // Ganti dengan Project URL dan anon key milikmu
+const SUPABASE_URL = "https://phnprjmsyhhlkhtuvbpj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_XsbjMe60D3qKxHjYTrV-QQ_ubdcgzx_";
+
+// Inisialisasi client Supabase
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   session() { return LF.get('lf_session', null); },
   profile() { return LF.get('lf_profile', null); },
