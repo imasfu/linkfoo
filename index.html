@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Linkfoo</title>
+<meta name="description" content="Linkfoo - semua link kamu dalam satu halaman.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-dark">
+<div class="kebab">
+  <button id="kebabBtn" aria-label="Menu" aria-haspopup="true">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="3.5" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="16.5" r="2"/></svg>
+  </button>
+  <div class="menu" id="menu"></div>
+</div>
+
+<main class="stage">
+  <section class="pill tall">
+    <div class="avatar" id="avatar"></div>
+    <div class="username" id="username"></div>
+    <div class="title" id="title"></div>
+    <div class="links" id="links"></div>
+    <div class="scrollbtns" id="sbtns">
+      <button id="up" aria-label="Gulir ke atas">&#9650;</button>
+      <button id="down" aria-label="Gulir ke bawah">&#9660;</button>
+    </div>
+  </section>
+</main>
+<div class="footer">Powered by IMFOO OFFICIAL</div>
+
+<script src="js/app.js"></script>
+<script>
+(function () {
+  const p = LF.profile();
+  const $ = id => document.getElementById(id);
+
+  // background kustom
+  if (p && p.bg) document.body.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url("' + p.bg + '")';
+
+  // avatar
+  if (p && p.avatar) { const i = new Image(); i.src = p.avatar; i.alt = 'Foto profil'; $('avatar').appendChild(i); }
+  else $('avatar').innerHTML = LF.defaultAvatar;
+
+  $('username').textContent = '@' + ((p && p.username) || 'username');
+  if (p && p.title) $('title').textContent = p.title; else $('title').style.display = 'none';
+
+  // link
+  const hasLinks = p && p.links && p.links.length;
+  const links = hasLinks ? p.links : [1, 2, 3, 4].map(() => ({ label: 'Your Link', url: '' }));
+  const box = $('links');
+  links.forEach(l => {
+    const el = document.createElement(l.url ? 'a' : 'div');
+    el.className = 'link'; el.textContent = l.label || l.url || 'Link';
+    if (l.url) { el.href = LF.normUrl(l.url); el.target = '_blank'; el.rel = 'noopener noreferrer'; }
+    box.appendChild(el);
+  });
+  if (links.length > 4) $('sbtns').classList.add('show');
+  $('up').onclick = () => box.scrollBy({ top: -64 * 2 });
+  $('down').onclick = () => box.scrollBy({ top: 64 * 2 });
+
+  // menu titik tiga
+  const menu = $('menu');
+  function renderMenu() {
+    menu.innerHTML = '';
+    const add = (txt, fn, href) => {
+      const e = document.createElement(href ? 'a' : 'button');
+      e.textContent = txt; if (href) e.href = href; else e.onclick = fn;
+      menu.appendChild(e);
+    };
+    if (LF.session()) {
+      add('Edit', null, 'edit.html');
+      add('Logout', () => { LF.del('lf_session'); renderMenu(); menu.classList.remove('open'); LF.toast('Kamu sudah logout'); });
+    } else {
+      add('Login', null, 'login.html?mode=login');
+      add('Daftar', null, 'login.html');
+    }
+  }
+  renderMenu();
+  $('kebabBtn').onclick = e => { e.stopPropagation(); menu.classList.toggle('open'); };
+  document.addEventListener('click', () => menu.classList.remove('open'));
+})();
+</script>
+</body>
+</html>
