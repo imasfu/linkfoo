@@ -3,22 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<!-- Memuat library Supabase dari CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Daftar / Login - Linkfoo</title>
-<!-- Path diperbaiki tanpa folder css/ -->
-<link rel="stylesheet" href="style.css">
+<!-- Library Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-  .pass-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-  .pass-wrapper input { width: 100%; padding-right: 42px; }
-  .toggle-btn { position: absolute; right: 12px; background: none; border: none; cursor: pointer; font-size: 16px; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background-color: #d1d5db; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .stage { width: 100%; display: flex; justify-content: center; padding: 20px; }
+  .pill { background-color: #525252; color: #ffffff; padding: 40px 30px; border-radius: 120px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .pill h1 { font-size: 20px; margin-bottom: 6px; font-weight: 700; }
+  .sub { font-size: 13px; color: #d4d4d4; margin-bottom: 24px; }
+  .field { width: 100%; padding: 12px 18px; border-radius: 20px; border: none; outline: none; margin-bottom: 12px; font-size: 14px; background: #ffffff; color: #111; }
+  .pass-wrapper { position: relative; width: 100%; margin-bottom: 16px; }
+  .pass-wrapper .field { margin-bottom: 0; padding-right: 45px; }
+  .toggle-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; line-height: 1; }
+  .btn { width: 100%; padding: 12px; border-radius: 20px; border: none; background-color: #262626; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .btn:hover { background-color: #171717; }
+  .alt { font-size: 12px; color: #e5e5e5; margin-top: 14px; }
+  .alt button { background: none; border: none; color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer; }
+  .alt a { color: #e5e5e5; text-decoration: none; font-size: 11px; }
+  .alt a:hover { text-decoration: underline; }
+  .footer { margin-top: 25px; font-size: 12px; color: #737373; text-align: center; }
 </style>
 </head>
-<body class="bg-light">
+<body>
+
 <main class="stage">
-  <form class="pill tall" id="form" novalidate>
+  <form class="pill" id="form" novalidate>
     <h1>Bergabunglah dengan Linkfoo</h1>
     <p class="sub" id="sub">Daftar Secara Gratis</p>
+    
     <input class="field" type="email" id="email" placeholder="Email" autocomplete="email" required>
     
     <div class="pass-wrapper">
@@ -33,15 +48,16 @@
 </main>
 <div class="footer">Powered by IMFOO OFFICIAL</div>
 
-<!-- Path diperbaiki tanpa folder js/ -->
-<script src="./config.js"></script>
-<script src="./app.js"></script>
 <script>
 (function () {
+  const SUPABASE_URL = "https://phnprjmsyhhlkhtuvbpj.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_XsbjMe60D3qKxHjYTrV-QQ_ubdcgzx_";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   let mode = new URLSearchParams(location.search).get('mode') === 'login' ? 'login' : 'register';
   const $ = id => document.getElementById(id);
 
-  // Fitur Lihat / Sembunyikan Password
+  // Toggle Password
   $('togglePass').addEventListener('click', () => {
     const isPassword = $('pass').type === 'password';
     $('pass').type = isPassword ? 'text' : 'password';
@@ -65,46 +81,33 @@
     const email = $('email').value.trim().toLowerCase();
     const pass = $('pass').value;
 
-    if (!LF.validEmail(email)) return LF.toast('Email tidak valid');
-    if (pass.length < 6) return LF.toast('Password minimal 6 karakter');
+    if (!email) return alert('Email wajib diisi');
+    if (pass.length < 6) return alert('Password minimal 6 karakter');
 
     const btn = $('submit');
     btn.disabled = true;
 
-    // 1. Logika Masuk (Login) ke Supabase
     if (mode === 'login') {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: pass,
-      });
-
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (error) {
         btn.disabled = false;
-        return LF.toast('Gagal masuk: ' + error.message);
+        return alert('Gagal masuk: ' + error.message);
       }
-
-      LF.set('lf_session', { email: data.user.email, id: data.user.id });
-      LF.toast('Login berhasil!');
-      setTimeout(() => { location.href = 'edit.html'; }, 1000);
+      alert('Login berhasil!');
+      location.href = 'edit.html';
       return;
     }
 
-    // 2. Logika Daftar (Sign Up) ke Supabase
-    const { data, error } = await supabaseClient.auth.signUp({
-      email: email,
-      password: pass,
-    });
-
+    const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
     if (error) {
       btn.disabled = false;
-      return LF.toast('Gagal mendaftar: ' + error.message);
+      return alert('Gagal mendaftar: ' + error.message);
     }
-
-    LF.set('lf_session', { email: data.user.email, id: data.user.id });
-    LF.toast('Pendaftaran berhasil! Menyimpan ke cloud...');
-    setTimeout(() => { location.href = 'edit.html'; }, 1200);
+    alert('Pendaftaran berhasil! Akun sudah tersimpan di database online.');
+    location.href = 'edit.html';
   });
 })();
 </script>
+
 </body>
 </html>
