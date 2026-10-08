@@ -3,10 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <!-- Memuat library Supabase dari CDN -->
+<!-- Memuat library Supabase dari CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Daftar / Login - Linkfoo</title>
-<link rel="stylesheet" href="css/style.css">
+<!-- Path diperbaiki tanpa folder css/ -->
+<link rel="stylesheet" href="./style.css">
+<style>
+  .pass-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+  .pass-wrapper input { width: 100%; padding-right: 42px; }
+  .toggle-btn { position: absolute; right: 12px; background: none; border: none; cursor: pointer; font-size: 16px; padding: 0; }
+</style>
 </head>
 <body class="bg-light">
 <main class="stage">
@@ -14,7 +20,12 @@
     <h1>Bergabunglah dengan Linkfoo</h1>
     <p class="sub" id="sub">Daftar Secara Gratis</p>
     <input class="field" type="email" id="email" placeholder="Email" autocomplete="email" required>
-    <input class="field" type="password" id="pass" placeholder="Password" autocomplete="current-password" required>
+    
+    <div class="pass-wrapper">
+      <input class="field" type="password" id="pass" placeholder="Password" autocomplete="current-password" required>
+      <button type="button" class="toggle-btn" id="togglePass" aria-label="Lihat Password">👁️</button>
+    </div>
+
     <button class="btn" id="submit" type="submit">Daftar</button>
     <p class="alt" id="alt"></p>
     <p class="alt"><a href="index.html">&larr; Kembali ke halaman utama</a></p>
@@ -22,12 +33,20 @@
 </main>
 <div class="footer">Powered by IMFOO OFFICIAL</div>
 
-<script src="js/config.js"></script>
-<script src="js/app.js"></script>
+<!-- Path diperbaiki tanpa folder js/ -->
+<script src="./config.js"></script>
+<script src="./app.js"></script>
 <script>
 (function () {
   let mode = new URLSearchParams(location.search).get('mode') === 'login' ? 'login' : 'register';
   const $ = id => document.getElementById(id);
+
+  // Fitur Lihat / Sembunyikan Password
+  $('togglePass').addEventListener('click', () => {
+    const isPassword = $('pass').type === 'password';
+    $('pass').type = isPassword ? 'text' : 'password';
+    $('togglePass').textContent = isPassword ? '🙈' : '👁️';
+  });
 
   function render() {
     const reg = mode === 'register';
@@ -45,25 +64,45 @@
     e.preventDefault();
     const email = $('email').value.trim().toLowerCase();
     const pass = $('pass').value;
+
     if (!LF.validEmail(email)) return LF.toast('Email tidak valid');
     if (pass.length < 6) return LF.toast('Password minimal 6 karakter');
-    const btn = $('submit'); btn.disabled = true;
-    const users = LF.get('lf_users', {});
-    const h = await LF.hash(pass);
 
+    const btn = $('submit');
+    btn.disabled = true;
+
+    // 1. Logika Masuk (Login) ke Supabase
     if (mode === 'login') {
-      if (!users[email] || !users[email].verified) { btn.disabled = false; return LF.toast('Akun belum terdaftar'); }
-      if (users[email].hash !== h) { btn.disabled = false; return LF.toast('Password salah'); }
-      LF.set('lf_session', { email });
-      location.href = 'edit.html';
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: pass,
+      });
+
+      if (error) {
+        btn.disabled = false;
+        return LF.toast('Gagal masuk: ' + error.message);
+      }
+
+      LF.set('lf_session', { email: data.user.email, id: data.user.id });
+      LF.toast('Login berhasil!');
+      setTimeout(() => { location.href = 'edit.html'; }, 1000);
       return;
     }
 
-    if (users[email] && users[email].verified) { btn.disabled = false; return LF.toast('Email sudah terdaftar, silakan masuk'); }
-    LF.set('lf_pending', { email, hash: h });
-    const r = await LF.sendOtp(email);
-    if (r.error) { btn.disabled = false; return LF.toast(r.error); }
-    location.href = 'otp.html';
+    // 2. Logika Daftar (Sign Up) ke Supabase
+    const { data, error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: pass,
+    });
+
+    if (error) {
+      btn.disabled = false;
+      return LF.toast('Gagal mendaftar: ' + error.message);
+    }
+
+    LF.set('lf_session', { email: data.user.email, id: data.user.id });
+    LF.toast('Pendaftaran berhasil! Menyimpan ke cloud...');
+    setTimeout(() => { location.href = 'edit.html'; }, 1200);
   });
 })();
 </script>
